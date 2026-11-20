@@ -1,6 +1,6 @@
 /* montherionlabs.com — hoja única. Paleta y tipografía de la guía de marca de Montherion Labs (v1.0, sep-2026):
    Tinta #0E1116 · Papel #F4F2EC · Piedra #8A8F98 · Latón #B08D57 (solo filetes, marcas y cotas; ≤ 5 % de la página).
-   Archivo (OFL), anchura 100, pesos 400–600, autoalojada. Montherion Mono (propia, tipografia/): monoespaciada de
+   Archivo (OFL), anchura 100, pesos 400–600, autoalojada. Montherion Mono (propia): monoespaciada de
    rotulación técnica construida sobre la geometría del símbolo, solo para identificadores literales.
    Sin JavaScript, sin recursos externos. */
 
@@ -88,7 +88,7 @@ a { color: inherit; text-underline-offset: .2em; text-decoration-thickness: 1px;
 a:hover { text-decoration-thickness: 2px; }
 :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 .band :focus-visible, .foot :focus-visible { outline-color: var(--band-fg); }
-/* Montherion Mono existe solo en 400 (v0.1): nunca se sintetiza negrita ni cursiva. A 0,9 em su altura x queda
+/* Montherion Mono: nunca se sintetiza negrita ni cursiva (la Bold de las flechas tiene su propia cara). A 0,9 em su altura x queda
    a la par de la de Archivo en el texto que la rodea. */
 code, .mono { font-family: var(--mono); font-size: .9em; font-weight: 400; font-style: normal; font-synthesis: none; letter-spacing: 0; }
 .tnum { font-variant-numeric: tabular-nums lining-nums; }
@@ -166,7 +166,7 @@ h1, h2, h3 { font-weight: 500; color: var(--fg); }
 .reg .ver dd { font-family: var(--mono); font-size: 15px; }
 .reg .ch { grid-column: 9 / 11; font-size: 16px; }
 .reg .st { grid-column: 11 / 13; font-size: 15px; text-align: right; }
-/* r2 (Neon, verificado): ocultas solo a la vista, para que el lector de pantalla anuncie el nombre de cada campo */
+/* Ocultas solo a la vista, para que el lector de pantalla anuncie el nombre de cada campo */
 .rows dt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .rows dd { margin: 0; }
 .reg .st i { display: inline-block; width: 7px; height: 7px; margin-right: 9px; background: var(--fg); vertical-align: 1px; }
@@ -258,7 +258,7 @@ h1, h2, h3 { font-weight: 500; color: var(--fg); }
 .nf { min-height: 70vh; padding: 120px 0; }
 .nf .g > div { grid-column: 4 / 13; }
 .nf p { margin-top: 24px; }
-.nf h1 { margin-top: 16px; }   /* r2 (Neon): los títulos de la 404 iban pegados */
+.nf h1 { margin-top: 16px; }
 .nf h2 { margin-top: 56px; padding-top: 40px; border-top: 1px solid var(--rule); }
 
 /* ---------- Tablet ---------- */
@@ -270,6 +270,7 @@ h1, h2, h3 { font-weight: 500; color: var(--fg); }
   .hero .meta p + p, .hero .meta ul { margin-top: 0; }
   .hero .meta ul { display: flex; gap: 22px; }
   .hero .text { grid-column: 1 / 13; }
+  .nf .g > div { grid-column: 1 / 13; }
   .prod .name { grid-column: 2 / 8; }
   .prod .desc { grid-column: 8 / 13; }
   .reg .colh { display: none; }
@@ -310,6 +311,8 @@ h1, h2, h3 { font-weight: 500; color: var(--fg); }
   body { font-size: 16px; }
   .top .w { min-height: 72px; }
   .hero { padding-top: 48px; }
+  .nf { min-height: 0; padding: 56px 0 72px; }
+  .nf h2 { margin-top: 40px; padding-top: 32px; }
   .hero .meta { flex-direction: column; gap: 6px; margin-bottom: 28px; }
   .hero .meta ul { flex-direction: column; gap: 0; }
   .hero .lead { margin-top: 28px; }
