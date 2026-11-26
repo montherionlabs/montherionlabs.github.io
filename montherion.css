@@ -12,17 +12,21 @@
 }
 @font-face {
   font-family: 'Montherion Mono';
-  src: url('fonts/montherion-mono-bold.woff') format('woff');
+  src: url('fonts/montherion-mono-bold-cifras.woff') format('woff');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
+  unicode-range: U+0030-0039;   /* solo las cifras: lo único que va en 700 son las anotaciones 1–5 de las capturas */
 }
 
 :root {
   --papel: #F2F0EB;      /* algodón cálido */
   --tinta: #121212;
-  --aguja: #E2421D;      /* bermellón: aguja, marcas y trazos (3,67:1 sobre Papel; gráfico) */
-  --acento: #B2321A;     /* bermellón para texto (5,48:1 sobre Papel) */
+  --bermellon: #E2421D;          /* aguja, marcas y trazos (3,67:1 sobre Papel; gráfico) */
+  --bermellon-texto: #B2321A;    /* bermellón para texto (5,48:1 sobre Papel) */
+  --aguja: var(--bermellon);
+  --acento: var(--bermellon-texto);
+  --sel-fg: var(--papel);          /* texto seleccionado: papel sobre --acento; en oscuro, tinta */
   --bg: var(--papel);
   --fg: var(--tinta);
   --fg2: rgba(18, 18, 18, .64);
@@ -56,6 +60,7 @@
     --aguja: var(--band-acento);
     --acento: var(--band-acento);
     --band-bg: color-mix(in srgb, var(--tinta) 92%, var(--papel));
+    --sel-fg: var(--tinta);
     color-scheme: dark;
   }
 }
@@ -77,8 +82,8 @@ img, svg { display: block; max-width: 100%; }
 a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: .24em; }
 a:hover { text-decoration-color: var(--aguja); }
 :focus-visible { outline: 2px solid var(--aguja); outline-offset: 3px; }
-::selection { background: var(--aguja); color: var(--papel); }
-b, strong { font-weight: 700; }
+::selection { background: var(--acento); color: var(--sel-fg); }   /* 5,48:1; en oscuro, tinta sobre #F05A36 (5,55:1) */
+b, strong { font-weight: 400; }   /* todo va en 400: la Bold del sitio solo trae cifras */
 code { font-family: inherit; font-size: inherit; }
 .skip { position: absolute; left: 16px; top: -80px; z-index: 10; padding: 12px 18px; background: var(--fg); color: var(--bg); }
 .skip:focus { top: 16px; }
@@ -89,7 +94,7 @@ code { font-family: inherit; font-size: inherit; }
 .w { max-width: calc(1280px + 2 * var(--gutter)); margin: 0 auto; padding: 0 var(--gutter); }
 .g { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); }
 
-/* Tipografía: una sola familia, cinco tamaños de texto y dos de titular */
+/* Tipografía: una sola familia, Montherion Mono en 400; titulares en clamp() y texto entre 11 y 18 px */
 .lbl { font-size: 11.5px; line-height: 1.45; letter-spacing: .1em; text-transform: uppercase; color: var(--fg2); font-weight: 400; }
 .small { font-size: 13px; line-height: 1.6; color: var(--fg2); }
 .lead { font-size: 16px; line-height: 1.7; color: var(--fg2); max-width: 56ch; text-wrap: pretty; }
@@ -121,8 +126,7 @@ a:hover .arr { transform: translate(2px, -2px); }
 .spec { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: var(--gap); padding-bottom: 22px; border-bottom: 1px solid var(--rule); }
 .spec dt { margin-bottom: 8px; }
 .spec dd { font-size: 13.5px; }
-.medida { position: relative; margin-top: clamp(56px, 6vw, 92px); --n: 12; }
-.medida.n11 { --n: 11; } .medida.n12 { --n: 12; } .medida.n13 { --n: 13; } .medida.n14 { --n: 14; }
+.medida { position: relative; margin-top: clamp(56px, 6vw, 92px); --n: 12; }   /* la línea más larga, en EN y en ES */
 .d1 { font-size: var(--hf); line-height: .94; letter-spacing: calc(var(--hf) * -.06); white-space: nowrap; }
 .d1 span { display: block; }
 .regla { position: relative; height: 52px; margin-top: calc(var(--hf) * .32); color: var(--fg); }
@@ -144,12 +148,13 @@ a:hover .arr { transform: translate(2px, -2px); }
 .regla .aguja::after { content: ''; position: absolute; left: -5px; bottom: -6px; border: 6px solid transparent; border-bottom-color: var(--aguja);
   border-top: 0; width: 0; height: 0; }
 .nums { position: absolute; inset: 0; overflow: hidden; }
-@property --m { syntax: '<integer>'; inherits: false; initial-value: 0; }
-.lectura { position: absolute; right: 0; bottom: 64px; display: flex; align-items: baseline; gap: 14px; --m: var(--n); counter-reset: m var(--m); }
-.lectura .v::after { content: counter(m, decimal-leading-zero); font-size: clamp(28px, 3vw, 44px); letter-spacing: -.04em; color: var(--fg); }
+.lectura { position: absolute; right: 0; bottom: 64px; display: flex; align-items: baseline; gap: 14px; }
+/* Estado final (movimiento reducido, impresión): la medida de --n. La cuenta se anima con fotogramas de content, no con
+   @property y counter(): WebKit no repinta un contador mientras se anima su valor y saltaba de 00 a 12 al final. */
+.lectura .v::after { counter-reset: m var(--n); content: counter(m, decimal-leading-zero); font-size: clamp(28px, 3vw, 44px); letter-spacing: -.04em; color: var(--fg); }
 .hero-b { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); align-items: start; margin-top: 44px; padding-bottom: 8px; }
 .hero-b .lead { grid-column: 1 / 7; }
-.hero-b .acts { grid-column: 8 / 13; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 12px; }
+.hero-b .acts { grid-column: 7 / 13; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 12px; }
 
 /* Entrada: solo CSS, una vez. Con movimiento reducido o al imprimir se ve el estado final. */
 @media (prefers-reduced-motion: no-preference) {
@@ -161,14 +166,19 @@ a:hover .arr { transform: translate(2px, -2px); }
   .regla .nums span:nth-child(1) { animation-delay: .4s; } .regla .nums span:nth-child(2) { animation-delay: .6s; }
   .regla .nums span:nth-child(3) { animation-delay: .8s; } .regla .nums span:nth-child(4) { animation-delay: 1s; }
   .regla .aguja { animation: mide 1.9s cubic-bezier(.22, 1.18, .36, 1) .9s both; }
-  .lectura { animation: cuenta 1.9s cubic-bezier(.22, 1, .36, 1) .9s both; }
-  .lectura .v::after { animation: aparece .4s ease .9s both; }
+  .lectura .v::after { animation: cuenta 1.9s steps(1, end) .9s both, aparece .4s ease .9s both; }
 }
 @keyframes sube { from { opacity: 0; transform: translateY(.14em); } }
 @keyframes traza { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes aparece { from { opacity: 0; } }
 @keyframes mide { from { transform: translateX(calc(var(--u) * var(--n) * -1)); opacity: 0; } 8% { opacity: 1; } }
-@keyframes cuenta { from { --m: 0; } }
+/* 00 → 12 sobre la curva de la aguja, cubic-bezier(.22, 1, .36, 1): cada cifra salta cuando la curva pasa por
+   (k − 0,5)/12. Si cambia la medida (--n, hoy 12 en EN y ES), cambian estos fotogramas. */
+@keyframes cuenta {
+  0% { content: '00'; } 0.9% { content: '01'; } 2.8% { content: '02'; } 4.8% { content: '03'; } 7% { content: '04'; }
+  9.2% { content: '05'; } 11.7% { content: '06'; } 14.6% { content: '07'; } 17.8% { content: '08'; } 21.7% { content: '09'; }
+  26.8% { content: '10'; } 34.2% { content: '11'; } 49%, 100% { content: '12'; }
+}
 
 /* ---------- Encabezado de sección ---------- */
 .cat-head, .head { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); align-items: baseline;
@@ -179,7 +189,7 @@ a:hover .arr { transform: translate(2px, -2px); }
 /* ---------- Catálogo ---------- */
 .cat { padding: var(--sec) 0 0; }
 .cat-head h2 { grid-column: 1 / 7; }
-.cat-head h2::before { content: '§ 01'; margin-right: 3ch; color: var(--acento); }
+.cat-head h2::before { content: '§ 01'; content: '§ 01' / ''; margin-right: 3ch; color: var(--acento); }
 .cat-head p { grid-column: 7 / 13; text-align: right; }
 .cat-head .n { color: var(--fg2); }
 .prod { padding: 72px 0 56px; align-items: start; }
@@ -202,7 +212,6 @@ a:hover .arr { transform: translate(2px, -2px); }
 .reg .ver { grid-column: 8 / 9; font-size: 13.5px; }
 .reg .ch { grid-column: 9 / 11; font-size: 13.5px; }
 .reg .st { grid-column: 11 / 13; font-size: 13.5px; text-align: right; }
-.reg .colh .st { text-align: right; }
 .rows dt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .rows dd { margin: 0; }
 .reg .st i { display: inline-block; width: 7px; height: 7px; margin-right: 10px; background: var(--fg); vertical-align: 1px; }
@@ -220,7 +229,7 @@ a:hover .arr { transform: translate(2px, -2px); }
 .ev { margin-top: var(--sec); padding: var(--sec) 0; }
 .ev .head { border-top-color: var(--band-fg); }
 .ev .head .lbl { grid-column: 1 / 3; }
-.ev .head .lbl::before { content: '§ 02'; display: block; margin-bottom: 6px; color: var(--band-acento); }
+.ev .head .lbl::before { content: '§ 02'; content: '§ 02' / ''; display: block; margin-bottom: 6px; color: var(--band-acento); }
 .ev .head h2 { grid-column: 3 / 10; }
 .ev .head > p:last-child { grid-column: 3 / 9; margin-top: 28px; font-size: 15px; line-height: 1.7; color: var(--band-fg2); }
 .ev .legend { grid-column: 1 / 5; grid-row: 2; align-self: start; list-style: none; padding: 0; margin-top: 72px; border-top: 1px solid var(--band-rule); }
@@ -242,7 +251,7 @@ a:hover .arr { transform: translate(2px, -2px); }
 /* ---------- Principios ---------- */
 .pr { padding: var(--sec) 0 0; }
 .pr .head .lbl { grid-column: 1 / 3; }
-.pr .head .lbl::before { content: '§ 03'; display: block; margin-bottom: 6px; color: var(--acento); }
+.pr .head .lbl::before { content: '§ 03'; content: '§ 03' / ''; display: block; margin-bottom: 6px; color: var(--acento); }
 .pr .head h2 { grid-column: 3 / 11; }
 .pr .list { grid-column: 1 / 13; list-style: none; padding: 0; margin-top: 88px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: var(--gap); }
 .pr .list li { display: flex; flex-direction: column; padding-right: 8px; }
@@ -259,7 +268,7 @@ a:hover .arr { transform: translate(2px, -2px); }
 /* ---------- Estudio ---------- */
 .st-sec { padding: var(--sec) 0; }
 .st-sec .text { grid-column: 1 / 7; }
-.st-sec .text .lbl::before { content: '§ 04'; display: block; margin-bottom: 6px; color: var(--acento); }
+.st-sec .text .lbl::before { content: '§ 04'; content: '§ 04' / ''; display: block; margin-bottom: 6px; color: var(--acento); }
 .st-sec .text .h2 { margin-top: 20px; }
 .st-sec .text .lead { margin-top: 28px; }
 .st-sec dl { grid-column: 8 / 13; align-self: end; border-top: 1px solid var(--rule-strong); }
@@ -271,7 +280,7 @@ a:hover .arr { transform: translate(2px, -2px); }
 /* ---------- Contacto y pie (banda) ---------- */
 .ct { padding: var(--sec) 0 0; }
 .ct .w > div { grid-column: 1 / 13; }
-.ct .lbl::before { content: '§ 05'; display: block; margin-bottom: 6px; color: var(--band-acento); }
+.ct .lbl::before { content: '§ 05'; content: '§ 05' / ''; display: block; margin-bottom: 6px; color: var(--band-acento); }
 .ct .h2 { margin-top: 20px; }
 .ct .mail { display: inline-block; margin-top: 56px; font-size: clamp(18px, 6.4vw, 92px); line-height: 1.05; letter-spacing: -.055em; text-decoration: none;
   background: linear-gradient(var(--band-acento), var(--band-acento)) 0 100% / 0 2px no-repeat; transition: background-size .5s cubic-bezier(.2, .7, .1, 1); padding-bottom: 6px; }
@@ -283,7 +292,7 @@ a:hover .arr { transform: translate(2px, -2px); }
 .foot .sign .sym-only { display: none; }
 .foot nav { grid-column: 7 / 13; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--gap); }
 .foot nav ul { list-style: none; padding: 0; margin-top: 12px; font-size: 14px; line-height: 1.5; }
-.foot nav li a { display: inline-block; padding: 4px 0; text-decoration: none; }
+.foot nav li a { display: inline-block; min-width: 24px; padding: 4px 0; text-decoration: none; }
 .foot nav a:hover { text-decoration: underline; text-decoration-color: var(--band-acento); }
 .foot .legal { grid-column: 1 / 13; margin-top: 96px; padding-top: 22px; border-top: 1px solid var(--band-rule); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); row-gap: 10px; }
 .foot .legal p { font-size: 12px; line-height: 1.65; color: var(--band-fg2); }
@@ -300,7 +309,7 @@ a:hover .arr { transform: translate(2px, -2px); }
 .nf .h2 + .lead + .h2 { margin-top: 72px; }
 
 /* Titulares de sección: suben al entrar en pantalla, ligados al desplazamiento (sin soporte, quietos y visibles). */
-@supports (animation-timeline: view()) {
+@supports (animation-timeline: view()) and (animation-range: entry 0% entry 55%) {
   @media (prefers-reduced-motion: no-preference) {
     main .h2, .ct .h2, .pr .no { animation: sube linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
   }
@@ -323,7 +332,6 @@ a:hover .arr { transform: translate(2px, -2px); }
   .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 18px; }
   .hero-b .lead { grid-column: 1 / 13; }
   .hero-b .acts { grid-column: 1 / 13; justify-content: flex-start; margin-top: 32px; }
-  .lectura { bottom: 64px; }
   .reg .colh { display: none; }
   .rows li { grid-template-columns: 56px 1fr 1fr; row-gap: 6px; }
   .reg .ref { grid-column: 1; grid-row: 1 / 4; }
@@ -397,10 +405,28 @@ a:hover .arr { transform: translate(2px, -2px); }
   .foot nav { grid-template-columns: 1fr; }
   .foot .sign .firma-ap { display: none; }
   .foot .sign .sym-only { display: block; width: 48px; }
+  /* El estado baja bajo el nombre: en una columna, «■ Repositorio público» partía «Plugin para Claude» en tres líneas. */
+  .reg .sur { grid-column: 2 / 4; }
+  .reg .st { grid-column: 2 / 4; grid-row: 2; text-align: left; }
+  .reg .form { grid-row: 3; }
+  .reg .ver, .reg .ch { grid-row: 4; }
 }
 
 @media print {
+  /* Siempre tinta sobre papel blanco, aunque se imprima desde el modo oscuro: las bandas oscuras pierden el fondo y
+     sus textos claros quedarían en blanco sobre blanco. */
+  :root {
+    --bg: var(--papel); --fg: var(--tinta); --fg2: rgba(18, 18, 18, .64); --fg3: rgba(18, 18, 18, .32);
+    --rule: rgba(18, 18, 18, .14); --rule-strong: var(--tinta); --aguja: var(--bermellon); --acento: var(--bermellon-texto);
+    --band-bg: transparent; --band-fg: var(--tinta); --band-fg2: rgba(18, 18, 18, .64); --band-rule: rgba(18, 18, 18, .14);
+    --band-acento: var(--bermellon-texto); --sel-fg: var(--papel);
+    color-scheme: light;
+  }
   .regla .aguja, .lectura, .skip { display: none; }
-  * { animation: none !important; }
+  * { animation: none !important; transition: none !important; }
   .band { background: none; color: var(--tinta); }
+  /* Sin «gráficos de fondo» el relleno no se imprime: el botón sólido pasa a línea. Las cifras de la lámina, papel sobre el
+     bermellón de texto (5,48:1). */
+  .btn.solid { background: none; color: var(--fg); }
+  .ann text { fill: var(--papel); }
 }
