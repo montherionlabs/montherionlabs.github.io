@@ -38,7 +38,9 @@
   --gutter: 48px;
   --gap: 24px;
   --sec: 168px;
-  --hf: clamp(72px, 9.4vw, 150px);     /* cuerpo del titular */
+  /* Cuerpo del titular: por el ancho (9,4 vw) y por el ALTO de la ventana, para que regla, aguja, lectura y botones
+     quepan siempre en la primera pantalla (26-nov: en 1280 × 665, Windows al 150 %, la regla caía al borde). */
+  --hf: clamp(56px, min(9.4vw, (100svh - 350px) / 3.14), 150px);
   --u: calc(var(--hf) * .54);          /* avance de un carácter con el espaciado del titular (0,6 em − 0,06 em) */
   color-scheme: light;
 }
@@ -302,6 +304,15 @@ a:hover .arr { transform: translate(2px, -2px); }
   @media (prefers-reduced-motion: no-preference) {
     main .h2, .ct .h2, .pr .no { animation: sube linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
   }
+}
+
+/* Pantallas bajas (portátiles de 768 px, monitores con escala al 125–150 %): menos aire vertical en el héroe. */
+@media (max-height: 820px) and (min-width: 721px) {
+  .hero { padding-top: 24px; }
+  .spec { padding-bottom: 14px; }
+  .spec dt { margin-bottom: 4px; }
+  .medida { margin-top: 40px; }
+  .hero-b { margin-top: 32px; }
 }
 
 /* ---------- Tableta ---------- */
