@@ -41,7 +41,7 @@
   --mono: 'Montherion Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', Consolas, Menlo, monospace;
   --gutter: 48px;
   --gap: 24px;
-  --sec: 168px;
+  --sec: 120px;
   /* Cuerpo del titular: por el ancho (9,4 vw) y por el ALTO de la ventana, para que regla, aguja, lectura y botones
      quepan siempre en la primera pantalla (26-nov: en 1280 × 665, Windows al 150 %, la regla caía al borde). */
   --hf: clamp(56px, min(9.4vw, (100svh - 350px) / 3.14), 150px);
@@ -95,7 +95,7 @@ code { font-family: inherit; font-size: inherit; }
 .g { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); }
 
 /* Tipografía: una sola familia, Montherion Mono en 400; titulares en clamp() y texto entre 11 y 18 px */
-.lbl { font-size: 11.5px; line-height: 1.45; letter-spacing: .1em; text-transform: uppercase; color: var(--fg2); font-weight: 400; }
+.lbl { font-size: 12px; line-height: 1.45; letter-spacing: .1em; text-transform: uppercase; color: var(--fg2); font-weight: 400; }
 .small { font-size: 13px; line-height: 1.6; color: var(--fg2); }
 .lead { font-size: 16px; line-height: 1.7; color: var(--fg2); max-width: 56ch; text-wrap: pretty; }
 h1, h2, h3 { font-weight: 400; }
@@ -103,6 +103,7 @@ h1, h2, h3 { font-weight: 400; }
 .h3 { font-size: 18px; line-height: 1.35; letter-spacing: -.02em; }
 .arr { display: inline-block; margin-left: .7ch; transition: transform .3s cubic-bezier(.2, .7, .1, 1); }
 a:hover .arr { transform: translate(2px, -2px); }
+a:hover .arr.abajo { transform: translateY(2px); }   /* la flecha baja hacia donde lleva */
 
 /* Botones */
 .btn { display: inline-flex; align-items: center; height: 50px; padding: 0 24px; font-size: 12px; letter-spacing: .1em;
@@ -153,31 +154,25 @@ a:hover .arr { transform: translate(2px, -2px); }
    @property y counter(): WebKit no repinta un contador mientras se anima su valor y saltaba de 00 a 12 al final. */
 .lectura .v::after { counter-reset: m var(--n); content: counter(m, decimal-leading-zero); font-size: clamp(28px, 3vw, 44px); letter-spacing: -.04em; color: var(--fg); }
 .hero-b { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); align-items: start; margin-top: 44px; padding-bottom: 8px; }
-.hero-b .lead { grid-column: 1 / 7; }
+.hero-b .lead { grid-column: 1 / 7; color: var(--fg); }
 .hero-b .acts { grid-column: 7 / 13; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 12px; }
 
-/* Entrada: solo CSS, una vez. Con movimiento reducido o al imprimir se ve el estado final. */
-@media (prefers-reduced-motion: no-preference) {
-  .d1 span { animation: sube 1s cubic-bezier(.2, .7, .1, 1) both; }
-  .d1 span:nth-child(2) { animation-delay: .08s; }
-  .d1 span:nth-child(3) { animation-delay: .16s; }
-  .regla .ticks { animation: traza 1.3s cubic-bezier(.65, 0, .35, 1) .25s both; }
-  .regla .nums span { animation: aparece .5s ease both; }
-  .regla .nums span:nth-child(1) { animation-delay: .4s; } .regla .nums span:nth-child(2) { animation-delay: .6s; }
-  .regla .nums span:nth-child(3) { animation-delay: .8s; } .regla .nums span:nth-child(4) { animation-delay: 1s; }
-  .regla .aguja { animation: mide 1.9s cubic-bezier(.22, 1.18, .36, 1) .9s both; }
-  .lectura .v::after { animation: cuenta 1.9s steps(1, end) .9s both, aparece .4s ease .9s both; }
+/* Entrada: solo CSS, una vez (auditoría de Codex, 26-nov). El titular, la regla y sus números están quietos desde el
+   primer fotograma; la única acción es la medida: la aguja sale del 0 y se detiene en el carácter 12, sin rebote, mientras
+   la lectura cuenta. Con movimiento reducido o al imprimir se ve el estado final. */
+@media screen and (prefers-reduced-motion: no-preference) {
+  .regla .aguja { animation: mide 1.2s cubic-bezier(.25, .5, .5, 1) .2s both; }
+  .lectura .v::after { animation: cuenta 1.2s steps(1, end) .2s both; }
 }
-@keyframes sube { from { opacity: 0; transform: translateY(.14em); } }
-@keyframes traza { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
-@keyframes aparece { from { opacity: 0; } }
-@keyframes mide { from { transform: translateX(calc(var(--u) * var(--n) * -1)); opacity: 0; } 8% { opacity: 1; } }
-/* 00 → 12 sobre la curva de la aguja, cubic-bezier(.22, 1, .36, 1): cada cifra salta cuando la curva pasa por
-   (k − 0,5)/12. Si cambia la medida (--n, hoy 12 en EN y ES), cambian estos fotogramas. */
+@keyframes mide { from { transform: translateX(calc(var(--u) * var(--n) * -1)); } }
+/* La lectura es la posición de la aguja redondeada: cada cifra k salta cuando la curva de la aguja,
+   cubic-bezier(.25, .5, .5, 1), pasa por (k − 0,5)/12. Si cambia la curva o la medida (--n, hoy 12), cambian estos
+   fotogramas. Con content y no con @property + counter(): WebKit no repinta un contador mientras se anima. */
 @keyframes cuenta {
-  0% { content: '00'; } 0.9% { content: '01'; } 2.8% { content: '02'; } 4.8% { content: '03'; } 7% { content: '04'; }
-  9.2% { content: '05'; } 11.7% { content: '06'; } 14.6% { content: '07'; } 17.8% { content: '08'; } 21.7% { content: '09'; }
-  26.8% { content: '10'; } 34.2% { content: '11'; } 49%, 100% { content: '12'; }
+  0% { content: '00'; } 2.0844% { content: '01'; } 6.2791% { content: '02'; } 10.5533% { content: '03'; }
+  14.9656% { content: '04'; } 19.5846% { content: '05'; } 24.4956% { content: '06'; } 29.8118% { content: '07'; }
+  35.6947% { content: '08'; } 42.3967% { content: '09'; } 50.3646% { content: '10'; } 60.568% { content: '11'; }
+  76.3359%, 100% { content: '12'; }
 }
 
 /* ---------- Encabezado de sección ---------- */
@@ -202,10 +197,9 @@ a:hover .arr { transform: translate(2px, -2px); }
 .reg { border-top: 1px solid var(--rule-strong); }
 .reg .colh, .rows li { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); align-items: baseline; }
 .reg .colh { padding: 14px 0; border-bottom: 1px solid var(--rule); }
-.reg .colh > span { font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--fg2); }
+.reg .colh > span { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--fg2); }
 .rows { list-style: none; padding: 0; }
-.rows li { padding: 22px 0; border-bottom: 1px solid var(--rule); transition: background-color .25s; }
-.rows li:hover { background: linear-gradient(90deg, transparent, var(--rule) 50%, transparent); }
+.rows li { padding: 22px 0; border-bottom: 1px solid var(--rule); }
 .reg .ref { grid-column: 1 / 2; font-size: 13px; color: var(--fg2); }
 .reg .sur { grid-column: 2 / 5; font-size: 17px; letter-spacing: -.02em; }
 .reg .form { grid-column: 5 / 8; font-size: 13.5px; color: var(--fg2); overflow-wrap: anywhere; }
@@ -216,7 +210,7 @@ a:hover .arr { transform: translate(2px, -2px); }
 .rows dd { margin: 0; }
 .reg .st i { display: inline-block; width: 7px; height: 7px; margin-right: 10px; background: var(--fg); vertical-align: 1px; }
 .rows li.next { border-bottom-style: dashed; }
-.rows li.next .st i { background: transparent; box-shadow: inset 0 0 0 1px var(--fg); }
+.rows li.next .st i { background: transparent; border: 1px solid var(--fg); }
 .rows a { display: inline-block; padding: 3px 0; white-space: nowrap; text-decoration: none; border-bottom: 1px solid var(--rule); }
 .rows a:hover { border-bottom-color: var(--aguja); }
 .notes { margin-top: 28px; }
@@ -258,10 +252,15 @@ a:hover .arr { transform: translate(2px, -2px); }
 .pr .no { font-size: clamp(56px, 6vw, 88px); line-height: 1; letter-spacing: -.06em; color: var(--fg); padding-bottom: 28px; border-bottom: 1px solid var(--rule-strong); }
 .pr .no::after { content: '.'; color: var(--aguja); }
 .pr .list .h3 { margin-top: 26px; }
+@media screen and (min-width: 1101px) {   /* los principios se leen antes que su numeración (Codex r2) */
+  .pr .list { margin-top: 64px; }
+  .pr .no { font-size: 56px; padding-bottom: 20px; }
+  .pr .list .h3 { margin-top: 20px; }
+}
 .pr .list p { margin-top: 14px; font-size: 14px; line-height: 1.7; color: var(--fg2); }
 .pr .list p.caveat { font-size: 12.5px; color: var(--fg2); }
 .pr .list .proof { margin-top: auto; padding-top: 28px; }
-.pr .proof > span { display: block; padding-top: 12px; border-top: 1px solid var(--rule); font-size: 12.5px; line-height: 1.6; color: var(--fg2); }
+.pr .proof > span { display: block; padding-top: 12px; border-top: 1px solid var(--rule); font-size: 13px; line-height: 1.6; color: var(--fg2); }
 .pr .proof .lbl { display: inline; margin-right: 1ch; font-size: 11px; }
 .pr .proof code { color: var(--fg); }
 
@@ -270,10 +269,10 @@ a:hover .arr { transform: translate(2px, -2px); }
 .st-sec .text { grid-column: 1 / 7; }
 .st-sec .text .lbl::before { content: '§ 04'; content: '§ 04' / ''; display: block; margin-bottom: 6px; color: var(--acento); }
 .st-sec .text .h2 { margin-top: 20px; }
-.st-sec .text .lead { margin-top: 28px; }
+.st-sec .text .lead { margin-top: 28px; color: var(--fg); }
 .st-sec dl { grid-column: 8 / 13; align-self: end; border-top: 1px solid var(--rule-strong); }
 .st-sec dl div { display: grid; grid-template-columns: 14ch 1fr; gap: 16px; padding: 15px 0; border-bottom: 1px solid var(--rule); font-size: 14px; }
-.st-sec dt { color: var(--fg2); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; padding-top: 2px; }
+.st-sec dt { color: var(--fg2); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; padding-top: 2px; }
 .st-sec dd { margin: 0; }
 .st-sec dd a { display: inline-block; padding: 3.5px 0; }
 
@@ -295,7 +294,7 @@ a:hover .arr { transform: translate(2px, -2px); }
 .foot nav li a { display: inline-block; min-width: 24px; padding: 4px 0; text-decoration: none; }
 .foot nav a:hover { text-decoration: underline; text-decoration-color: var(--band-acento); }
 .foot .legal { grid-column: 1 / 13; margin-top: 96px; padding-top: 22px; border-top: 1px solid var(--band-rule); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap); row-gap: 10px; }
-.foot .legal p { font-size: 12px; line-height: 1.65; color: var(--band-fg2); }
+.foot .legal p { font-size: 13px; line-height: 1.65; color: var(--band-fg2); }
 .foot .legal p:nth-child(1) { grid-column: 1 / 4; }
 .foot .legal p:nth-child(2) { grid-column: 4 / 8; }
 .foot .legal p:nth-child(3) { grid-column: 8 / 13; }
@@ -308,13 +307,6 @@ a:hover .arr { transform: translate(2px, -2px); }
 .nf .lead { margin-top: 24px; }
 .nf .h2 + .lead + .h2 { margin-top: 72px; }
 
-/* Titulares de sección: suben al entrar en pantalla, ligados al desplazamiento (sin soporte, quietos y visibles). */
-@supports (animation-timeline: view()) and (animation-range: entry 0% entry 55%) {
-  @media (prefers-reduced-motion: no-preference) {
-    main .h2, .ct .h2, .pr .no { animation: sube linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
-  }
-}
-
 /* Pantallas bajas (portátiles de 768 px, monitores con escala al 125–150 %): menos aire vertical en el héroe. */
 @media (max-height: 820px) and (min-width: 721px) {
   .hero { padding-top: 24px; }
@@ -323,10 +315,11 @@ a:hover .arr { transform: translate(2px, -2px); }
   .medida { margin-top: 40px; }
   .hero-b { margin-top: 32px; }
 }
+@media screen and (min-width: 1101px) and (max-height: 700px) { .hero-b { margin-top: 24px; } }   /* 1280 × 665: holgura bajo los botones */
 
 /* ---------- Tableta ---------- */
 @media (max-width: 1100px) {
-  :root { --gutter: 32px; --gap: 20px; --sec: 128px; }
+  :root { --gutter: 32px; --gap: 20px; --sec: 96px; }
   .top nav ul { gap: 22px; }
   .top nav .lang { padding-left: 22px; }
   .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 18px; }
@@ -340,7 +333,7 @@ a:hover .arr { transform: translate(2px, -2px); }
   .reg .ch { grid-column: 3; grid-row: 3; }
   .reg .st { grid-column: 2 / 4; grid-row: 4; text-align: left; }
   .ev .head h2, .ev .head > p:last-child { grid-column: 3 / 13; }
-  .ev .legend { grid-column: 1 / 13; grid-row: auto; }
+  .ev .legend { grid-column: 1 / 13; grid-row: auto; margin-top: 32px; }   /* apiladas: primero la captura, luego su leyenda */
   .plate { grid-column: 1 / 13; grid-row: auto; margin-top: 48px; }
   .pr .list { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 72px; }
   .st-sec .text, .st-sec dl { grid-column: 1 / 13; }
@@ -356,18 +349,18 @@ a:hover .arr { transform: translate(2px, -2px); }
 
 /* ---------- Móvil ---------- */
 @media (max-width: 720px) {
-  :root { --gutter: 20px; --gap: 16px; --sec: 96px; --hf: clamp(36px, 12.6vw, 72px); }
+  :root { --gutter: 20px; --gap: 16px; --sec: 80px; --hf: clamp(36px, 12.6vw, 72px); }
   body { font-size: 14.5px; }
   .top .w { min-height: 72px; }
   .hero { padding-top: 28px; }
   .spec { row-gap: 14px; padding-bottom: 18px; }
-  .medida { margin-top: 64px; }
+  .medida { margin-top: 40px; }
   .regla { height: 46px; }
   .regla .nums span:nth-child(n+4) { display: none; }
   .lectura { position: static; margin-top: 18px; }
   .lectura .v::after { font-size: 26px; }
-  .hero-b { margin-top: 36px; }
-  .hero-b .acts { flex-direction: column; align-items: stretch; }
+  .hero-b { margin-top: 24px; row-gap: 24px; }
+  .hero-b .acts { order: -1; margin-top: 0; flex-direction: column; align-items: stretch; }   /* las acciones antes del párrafo */
   .btn { justify-content: space-between; }
   .cat-head h2, .cat-head p { grid-column: 1 / 13; text-align: left; }
   .cat-head p { margin-top: 10px; }
@@ -376,17 +369,16 @@ a:hover .arr { transform: translate(2px, -2px); }
   .prod .desc { margin-top: 24px; }
   .rows li { grid-template-columns: auto minmax(0, 1fr) auto; column-gap: 12px; row-gap: 4px; padding: 16px 0; }
   .reg .ref { grid-column: 1; grid-row: 1; }
-  .reg .sur { grid-column: 2; grid-row: 1; font-size: 15.5px; }
-  .reg .st { grid-column: 3; grid-row: 1; text-align: right; font-size: 12.5px; white-space: nowrap; }
-  .reg .form { grid-column: 2 / 4; grid-row: 2; font-size: 12.5px; }
-  .reg .ver { grid-column: 2; grid-row: 3; justify-self: start; font-size: 12.5px; }
-  .reg .ch { grid-column: 2 / 4; grid-row: 3; justify-self: end; font-size: 12.5px; }
+  .reg .sur { grid-column: 2 / 4; grid-row: 1; font-size: 16px; }   /* el nombre manda; el estado va debajo */
+  .reg .st { grid-column: 2 / 4; grid-row: 2; text-align: left; font-size: 12.5px; }
+  .reg .form { grid-column: 2 / 4; grid-row: 3; font-size: 12.5px; }
+  .reg .ver { grid-column: 2; grid-row: 4; justify-self: start; font-size: 12.5px; }
+  .reg .ch { grid-column: 2 / 4; grid-row: 4; justify-self: end; font-size: 12.5px; }
   .notes p { grid-column: 1 / 13; }
   .ev .head .lbl, .pr .head .lbl, .ev .head h2, .pr .head h2, .ev .head > p:last-child { grid-column: 1 / 13; }
   .ev .head h2, .pr .head h2 { margin-top: 14px; }
   .only-d { display: none; }
   .only-m { display: block; }
-  .ev .legend { margin-top: 48px; }
   .plate figcaption { flex-direction: column; gap: 8px; }
   .pr .list { grid-template-columns: 1fr; row-gap: 64px; margin-top: 56px; }
   .st-sec dl div { grid-template-columns: 1fr; gap: 2px; }
@@ -405,11 +397,12 @@ a:hover .arr { transform: translate(2px, -2px); }
   .foot nav { grid-template-columns: 1fr; }
   .foot .sign .firma-ap { display: none; }
   .foot .sign .sym-only { display: block; width: 48px; }
-  /* El estado baja bajo el nombre: en una columna, «■ Repositorio público» partía «Plugin para Claude» en tres líneas. */
-  .reg .sur { grid-column: 2 / 4; }
-  .reg .st { grid-column: 2 / 4; grid-row: 2; text-align: left; }
-  .reg .form { grid-row: 3; }
-  .reg .ver, .reg .ch { grid-row: 4; }
+}
+
+/* Movimiento reducido: al final, para ganar en la cascada a las transiciones de cada componente (Codex r2). */
+@media (prefers-reduced-motion: reduce) {
+  .arr, .btn, .ct .mail { transition: none; }
+  a:hover .arr, a:hover .arr.abajo { transform: none; }
 }
 
 @media print {
@@ -423,10 +416,12 @@ a:hover .arr { transform: translate(2px, -2px); }
     color-scheme: light;
   }
   .regla .aguja, .lectura, .skip { display: none; }
-  * { animation: none !important; transition: none !important; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
   .band { background: none; color: var(--tinta); }
   /* Sin «gráficos de fondo» el relleno no se imprime: el botón sólido pasa a línea. Las cifras de la lámina, papel sobre el
      bermellón de texto (5,48:1). */
   .btn.solid { background: none; color: var(--fg); }
   .ann text { fill: var(--papel); }
+  .plate, .rows li, .pr .list li { break-inside: avoid; }
+  .head, h2, h3 { break-after: avoid; }
 }
