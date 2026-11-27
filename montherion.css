@@ -45,7 +45,7 @@
   /* Cuerpo del titular: por el ancho (9,4 vw) y por el ALTO de la ventana, para que regla, aguja, lectura y botones
      quepan siempre en la primera pantalla (26-nov: en 1280 × 665, Windows al 150 %, la regla caía al borde). */
   --hf: clamp(56px, min(9.4vw, (100svh - 350px) / 3.14), 150px);
-  --u: calc(var(--hf) * .54);          /* avance de un carácter con el espaciado del titular (0,6 em − 0,06 em) */
+  --u: calc(var(--hf) * .6);           /* avance de un carácter de IBM Plex Mono (0,6 em; el titular va sin espaciado negativo) */
   color-scheme: light;
 }
 
@@ -128,7 +128,7 @@ a:hover .arr.abajo { transform: translateY(2px); }   /* la flecha baja hacia don
 .spec dt { margin-bottom: 8px; }
 .spec dd { font-size: 13.5px; }
 .medida { position: relative; margin-top: clamp(56px, 6vw, 92px); --n: 12; }   /* la línea más larga, en EN y en ES */
-.d1 { font-size: var(--hf); line-height: .94; letter-spacing: calc(var(--hf) * -.06); white-space: nowrap; }
+.d1 { font-size: var(--hf); line-height: .94; letter-spacing: 0; white-space: nowrap; }
 .d1 span { display: block; }
 .regla { position: relative; height: 52px; margin-top: calc(var(--hf) * .32); color: var(--fg); }
 .regla .ticks { position: absolute; inset: 0 0 auto; height: 22px; border-top: 1px solid var(--fg);
