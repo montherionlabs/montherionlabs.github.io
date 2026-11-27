@@ -4,15 +4,15 @@
    larga. El resto de la página calla: papel, tinta, reglas de 1 px y un único acento. */
 
 @font-face {
-  font-family: 'Montherion Mono';
-  src: url('fonts/montherion-mono-regular.woff') format('woff');
+  font-family: 'IBM Plex Mono';
+  src: url('fonts/IBMPlexMono-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Montherion Mono';
-  src: url('fonts/montherion-mono-bold-cifras.woff') format('woff');
+  font-family: 'IBM Plex Mono';
+  src: url('fonts/IBMPlexMono-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -38,7 +38,7 @@
   --band-fg2: rgba(242, 240, 235, .64);
   --band-rule: rgba(242, 240, 235, .14);
   --band-acento: #F05A36;
-  --mono: 'Montherion Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', Consolas, Menlo, monospace;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', Consolas, Menlo, monospace;
   --gutter: 48px;
   --gap: 24px;
   --sec: 120px;
@@ -425,3 +425,7 @@ a:hover .arr.abajo { transform: translateY(2px); }   /* la flecha baja hacia don
   .plate, .rows li, .pr .list li { break-inside: avoid; }
   .head, h2, h3 { break-after: avoid; }
 }
+
+/* 27-nov-2026: toda la web en IBM Plex Mono y en mayúsculas. El código y los campos conservan su caja. */
+html { text-transform: uppercase; }
+code, kbd, samp, pre, input, textarea, .conserva-caja { text-transform: none; }
